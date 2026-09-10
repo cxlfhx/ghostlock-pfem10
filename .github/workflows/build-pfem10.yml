@@ -13,17 +13,16 @@ jobs:
       - name: 安装基础依赖
         run: sudo apt update && sudo apt install -y build-essential make
 
-      - name: 安装Android NDK r28c（匹配build.sh硬编码要求）
+      - name: 安装Android NDK r28c
         uses: Ylarod/setup-ndk-clang@v1
-        id: setup-ndk
         with:
           ndk-version: r28c
 
-      - name: 手动编译，使用NDK r28c clang
+      - name: 执行仓库自带build.sh编译
         run: |
-          NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}
-          CLANG=${NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang
-          $CLANG -O2 -o ghostlock src/*.c lib/*.c -I./model -I./lib
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          chmod +x build.sh
+          ./build.sh
           ls -la
 
       - name: 上传编译产物ghostlock
