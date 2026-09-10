@@ -18,9 +18,19 @@ jobs:
           wget https://dl.google.com/android/repository/android-ndk-r28c-linux.zip
           unzip -q android-ndk-r28c-linux.zip
 
-      - name: 补丁：替换x86 rdtsc汇编为arm64兼容代码
+      - name: 补丁：把timeutils.h全部替换为空的ARM兼容版本（删掉全部x86汇编）
         run: |
-          sed -i 's/asm volatile("rdtsc" : "=a"(a), "=d"(d));/asm volatile("mrs %0, cntvct_el0" : "=r"(a));/g' lib/timeutils.h
+          cat > lib/timeutils.h << 'EOF'
+          #ifndef TIMEUTILS_H
+          #define TIMEUTILS_H
+          #include <stdint.h>
+          static inline uint64_t get_tsc(void) {
+              uint64_t val;
+              asm volatile("mrs %0, cntvct_el0" : "=r"(val));
+              return val;
+          }
+          #endif
+          EOF
           cat lib/timeutils.h
 
       - name: 手动编译源码
