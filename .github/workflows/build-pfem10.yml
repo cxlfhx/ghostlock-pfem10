@@ -1,0 +1,28 @@
+name: Build ghostlock‑pfem10
+on:
+  workflow_dispatch: # 手动点击运行，不会自动跑
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout源码
+        uses: actions/checkout@v4
+
+      - name: 安装基础依赖
+        run: sudo apt update && sudo apt install -y build-essential make
+
+      - name: 安装Android NDK r25c（这个仓库必须用r25c，高版本会编译失败）
+        uses: Ylarod/setup-ndk-clang@v1
+        id: setup-ndk
+        with:
+          ndk-version: r25c
+
+      - name: 编译pfem10
+        run: |
+          make NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}
+
+      - name: 上传编译产物ghostlock
+        uses: actions/upload-artifact@v4
+        with:
+          name: ghostlock‑pfem10
+          path: ghostlock
