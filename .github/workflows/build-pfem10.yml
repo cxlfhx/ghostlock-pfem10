@@ -5,7 +5,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout源码（包含子模块）
+      - name: Checkout源码
         uses: actions/checkout@v4
         with:
           submodules: true
@@ -19,10 +19,11 @@ jobs:
         with:
           ndk-version: r25c
 
-      - name: 编译pfem10
+      - name: 设置NDK环境变量，执行build.sh编译
         run: |
-          ls -la
-          make NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}
+          export NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}
+          chmod +x build.sh
+          ./build.sh
 
       - name: 上传编译产物ghostlock
         uses: actions/upload-artifact@v4
