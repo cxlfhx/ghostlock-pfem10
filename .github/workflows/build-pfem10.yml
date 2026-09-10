@@ -11,22 +11,22 @@ jobs:
           submodules: true
 
       - name: 安装基础依赖
-        run: sudo apt update && sudo apt install -y build-essential make
+        run: sudo apt update && sudo apt install -y build-essential wget unzip
 
-      - name: 安装Android NDK r28c
-        uses: Ylarod/setup-ndk-clang@v1
-        with:
-          ndk-version: r28c
-
-      - name: 手动编译，不使用build.sh
+      - name: 下载并解压 NDK r28c
         run: |
-          SDK_ROOT=/usr/local/lib/android/sdk
-          NDK_ROOT=${SDK_ROOT}/ndk/r28c
+          wget https://dl.google.com/android/repository/android-ndk-r28c-linux.zip
+          unzip -q android-ndk-r28c-linux.zip
+          ls android-ndk-r28c
+
+      - name: 手动编译源码
+        run: |
+          NDK_ROOT=$(pwd)/android-ndk-r28c
           CLANG=${NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang
           $CLANG -O2 -o ghostlock src/*.c lib/*.c -I./model -I./lib
           ls -la
 
-      - name: 上传编译产物ghostlock
+      - name: 上传产物
         uses: actions/upload-artifact@v4
         with:
           name: ghostlock‑pfem10
