@@ -17,9 +17,13 @@ jobs:
         run: |
           wget https://dl.google.com/android/repository/android-ndk-r28c-linux.zip
           unzip -q android-ndk-r28c-linux.zip
-          ls android-ndk-r28c
 
-      - name: 手动编译源码（仅src下的c文件）
+      - name: 补丁：替换x86 rdtsc汇编为arm64兼容代码
+        run: |
+          sed -i 's/asm volatile("rdtsc" : "=a"(a), "=d"(d));/asm volatile("mrs %0, cntvct_el0" : "=r"(a));/g' lib/timeutils.h
+          cat lib/timeutils.h
+
+      - name: 手动编译源码
         run: |
           NDK_ROOT=$(pwd)/android-ndk-r28c
           CLANG=${NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang
