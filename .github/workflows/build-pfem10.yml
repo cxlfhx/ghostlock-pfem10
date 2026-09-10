@@ -18,16 +18,12 @@ jobs:
         with:
           ndk-version: r28c
 
-      - name: 修改build.sh脚本内硬编码NDK路径，适配github runner环境
+      - name: 手动编译，不使用build.sh
         run: |
-          # 把脚本里错误的 /home/runner/Android/Sdk 替换成真实SDK路径
-          sed -i 's|/home/runner/Android/Sdk|/usr/local/lib/android/sdk|g' build.sh
-          cat build.sh
-
-      - name: 执行编译脚本
-        run: |
-          chmod +x build.sh
-          ./build.sh
+          SDK_ROOT=/usr/local/lib/android/sdk
+          NDK_ROOT=${SDK_ROOT}/ndk/r28c
+          CLANG=${NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang
+          $CLANG -O2 -o ghostlock src/*.c lib/*.c -I./model -I./lib
           ls -la
 
       - name: 上传编译产物ghostlock
